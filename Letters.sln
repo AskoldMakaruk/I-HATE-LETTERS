@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "letters", "xmls\letters.csproj", "{206D7060-FE7B-41DF-8AA4-0E5FB7F0B155}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LettersBot", "LettersBot\LettersBot.csproj", "{EEF0EB8E-2575-40A7-8DCA-4BB05CAE6D46}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{206D7060-FE7B-41DF-8AA4-0E5FB7F0B155}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206D7060-FE7B-41DF-8AA4-0E5FB7F0B155}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206D7060-FE7B-41DF-8AA4-0E5FB7F0B155}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206D7060-FE7B-41DF-8AA4-0E5FB7F0B155}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEF0EB8E-2575-40A7-8DCA-4BB05CAE6D46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEF0EB8E-2575-40A7-8DCA-4BB05CAE6D46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEF0EB8E-2575-40A7-8DCA-4BB05CAE6D46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEF0EB8E-2575-40A7-8DCA-4BB05CAE6D46}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
