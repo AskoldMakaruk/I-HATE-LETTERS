@@ -3,5 +3,7 @@ public enum ReplaceType
     InvalidChars,
     Empty,
     Remove,
-    SpecialChars
+    SpecialChars, 
+    NewYear,
+    Trees,
 }

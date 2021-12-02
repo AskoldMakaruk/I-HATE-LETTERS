@@ -41,6 +41,13 @@ public static class Constants
     };
 
     public const string Special = "!@#$^&*?|~";
+
+    public static string[] NewYear = new[]
+    {
+        "🎄", "🧸", "⭐️", "🎆", "🥂", "🎇", "🎉"
+    };
+
+    public static string Tree = "🎄";
     private static int DaysPast = (DateTime.Now - Start.ToDateTime(TimeOnly.MinValue)).Days;
     public static string RemovedLetters => new string(Alphabet[..DaysPast]);
 }

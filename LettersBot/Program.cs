@@ -46,8 +46,10 @@ public class InlineQueryCommand : IStaticCommand
             new[]
                 {
                     ReplaceType.InvalidChars,
+                    ReplaceType.NewYear,
+                    ReplaceType.Trees,
+                    ReplaceType.SpecialChars,
                     ReplaceType.Remove,
-                    ReplaceType.SpecialChars
                 }.Select(a => LettersService.RemoveLetters(update.InlineQuery.Query, a))
                 .Where(a => !string.IsNullOrWhiteSpace(a))
                 .Select(a => new InlineQueryResultArticle(Guid.NewGuid().ToString(), a, new InputTextMessageContent(a)))
