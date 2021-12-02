@@ -1,4 +1,5 @@
 ﻿using BotFramework.Abstractions;
+using BotFramework.Extensions;
 using BotFramework.Extensions.Hosting;
 using BotFramework.Middleware;
 using BotFramework.Services.Extensioins;
@@ -10,6 +11,7 @@ using Serilog;
 using Serilog.Events;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
 
 Host.CreateDefaultBuilder(args)
     .UseConfigurationWithEnvironment()
@@ -25,11 +27,7 @@ Host.CreateDefaultBuilder(args)
     {
         app.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(context.Configuration["BotToken"]));
 
-        app.Services.AddDbContext<LettersContext>(options =>
-        {
-            options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection"));
-            options.EnableSensitiveDataLogging();
-        });
+        app.Services.AddDbContext<LettersContext>(options => { options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")); });
 
         app.Services.AddScoped<IUserRepository<User>, UserRepository>();
         app.UseIdentity<User>();
@@ -37,12 +35,26 @@ Host.CreateDefaultBuilder(args)
     .Build()
     .Run();
 
-public class User
+public class InlineQueryCommand : IStaticCommand
 {
-    public long Id { get; set; }
-    public string Name { get; set; }
-    public long ChatId { get; set; }
-    public ReplaceType ReplaceType { get; set; } = ReplaceType.InvalidChars;
+    public bool SuitableFirst(Update update) => update?.InlineQuery?.Query != null;
+
+    public async Task Execute(IClient client)
+    {
+        var update = await client.GetUpdate();
+        var results =
+            new[]
+                {
+                    ReplaceType.InvalidChars,
+                    ReplaceType.Remove,
+                    ReplaceType.SpecialChars
+                }.Select(a => LettersService.RemoveLetters(update.InlineQuery.Query, a))
+                .Where(a => !string.IsNullOrWhiteSpace(a))
+                .Select(a => new InlineQueryResultArticle(Guid.NewGuid().ToString(), a, new InputTextMessageContent(a)))
+                .ToArray();
+
+        await client.AnswerInlineQuery(update.InlineQuery.Id, results);
+    }
 }
 
 public class TextCommand : IStaticCommand
@@ -62,54 +74,31 @@ public class TextCommand : IStaticCommand
         var update = await client.GetUpdate();
         await client.SendTextMessage(LettersService.RemoveLetters(update.Message.Text, _user.ReplaceType));
     }
-} 
+}
+
+public class BanCommand : IStaticCommand
+{
+    public bool SuitableFirst(Update update) => update?.Message?.Text != null && update?.Message?.Chat?.Type == ChatType.Group || update?.Message?.Chat?.Type == ChatType.Supergroup;
+
+    public async Task Execute(IClient client)
+    {
+        var update = await client.GetUpdate();
+        if (update.Message.Text.Any(a => Constants.RemovedLetters.Contains(a)))
+        {
+            await client.DeleteMessage(update.Message.MessageId);
+        }
+    }
+}
 
 public class ChannelCommand : IStaticCommand
 {
-    public bool SuitableFirst(Update update) => update?.ChannelPost?.Text != null 
+    public bool SuitableFirst(Update update) => update?.ChannelPost?.Text != null
                                                 && update?.ChannelPost?.Chat?.Type == ChatType.Channel;
 
     public async Task Execute(IClient client)
     {
         var update = await client.GetUpdate();
-        
+
         await client.EditMessageText(update.ChannelPost.MessageId, LettersService.RemoveLetters(update.ChannelPost.Text, ReplaceType.InvalidChars));
     }
 };
-
-public enum ReplaceType
-{
-    InvalidChars,
-    Empty,
-    Remove,
-    SpecialChars
-}
-
-public static class LettersService
-{
-    public static Random Random = new();
-
-    public static string RemoveLetters(string input, ReplaceType type)
-    {
-        return type switch
-        {
-            ReplaceType.Empty =>
-                new string(input.Select(a => Constants.RemovedLetters.Contains(a) ? ' ' : a).ToArray()),
-            ReplaceType.InvalidChars =>
-                new string(input.Select(a => Constants.RemovedLetters.Contains(a) ? Constants.InvalidChar : a).ToArray()),
-            ReplaceType.Remove =>
-                new string(input.Select(a => Constants.RemovedLetters.Contains(a) ? '\0' : a).ToArray()),
-            ReplaceType.SpecialChars =>
-                new string(input.Select(a => Constants.RemovedLetters.Contains(a) ? Constants.Special[Random.Next(Constants.Special.Length)] : a).ToArray()),
-            _ => input
-        };
-    }
-}
-
-public class Constants
-{
-    public const char InvalidChar = '�';
-    public const string Alphabet = "йцукенгшщзхїфівапролджєячсмитьбю";
-    public const string Special = "!@#$^&*?|~";
-    public const string RemovedLetters = "ад";
-}

@@ -1,5 +1,6 @@
 ﻿using BotFramework.Middleware;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Telegram.Bot.Types;
 
 public class UserRepository : IUserRepository<User>
@@ -59,6 +60,10 @@ public class LettersContext : DbContext
 {
     public DbSet<User> Users { get; set; }
 
+    public LettersContext()
+    {
+        
+    }
     public LettersContext(DbContextOptions options) : base(options) 
     {
         
