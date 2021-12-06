@@ -48,6 +48,6 @@ public static class Constants
     };
 
     public static string Tree = "🎄";
-    private static int DaysPast = (DateTime.Now - Start.ToDateTime(TimeOnly.MinValue)).Days;
+    private static int DaysPast => (DateTime.Now - Start.ToDateTime(TimeOnly.MinValue)).Days;
     public static string RemovedLetters => new string(Alphabet[..DaysPast]);
 }
